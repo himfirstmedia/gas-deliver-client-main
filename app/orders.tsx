@@ -1,19 +1,18 @@
 // app/orders.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl,
+  View
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService, Order, OrderStatus, PaymentStatus } from '../services/api';
-import { useRouter } from 'expo-router';
 
 export default function OrdersScreen() {
   const { user, token } = useAuth();
@@ -269,7 +268,7 @@ export default function OrdersScreen() {
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyTitle}>No Orders Yet</Text>
       <Text style={styles.emptySubtitle}>
-        You haven't placed any orders yet. Start by placing your first order!
+        You have not placed any orders yet. Start by placing your first order!
       </Text>
       <TouchableOpacity
         style={styles.placeOrderButton}

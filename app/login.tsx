@@ -1,28 +1,30 @@
 // login.tsx
+import { Ionicons } from '@expo/vector-icons'; // Make sure to install expo vector icons
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
+  ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
-  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router'; // Import useRouter
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Add password visibility state
   
   const { login } = useAuth();
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -46,7 +48,7 @@ export default function LoginScreen() {
       await login(credentials);
       
       Alert.alert('Success', 'Login successful!');
-      router.replace('/home'); // Redirect to the /home screen
+      router.replace('/home');
     } catch (error: any) {
       console.error('Login error:', error); 
       let errorMessage = 'An error occurred during login';
@@ -77,6 +79,10 @@ export default function LoginScreen() {
     router.push('/signup');
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <KeyboardAvoidingView 
       style={styles.container}
@@ -103,6 +109,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Enter your email"
+              placeholderTextColor="#999"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -114,16 +121,30 @@ export default function LoginScreen() {
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Enter your password"
+                placeholderTextColor="#999"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!isLoading}
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={togglePasswordVisibility}
+                disabled={isLoading}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="#666"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <TouchableOpacity
@@ -139,7 +160,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>Don't have an account? </Text>
+            <Text style={styles.signupText}>Do not have an account? </Text>
             <TouchableOpacity onPress={navigateToSignup} disabled={isLoading}>
               <Text style={styles.signupLink}>Sign Up</Text>
             </TouchableOpacity>
@@ -211,6 +232,26 @@ const styles = StyleSheet.create({
     padding: 15,
     fontSize: 16,
     backgroundColor: '#f9f9f9',
+  },
+  passwordContainer: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 15,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+    paddingRight: 50, // Make space for the eye icon
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    padding: 5,
   },
   loginButton: {
     backgroundColor: '#007AFF',
