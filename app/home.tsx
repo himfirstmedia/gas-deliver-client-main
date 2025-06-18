@@ -9,11 +9,14 @@ import {
   ScrollView,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'expo-router'; // Import useRouter
+import { useRouter } from 'expo-router';
+// Import icons - use one of these based on your setup:
+import { Ionicons } from '@expo/vector-icons'; // For Expo
+// import Icon from 'react-native-vector-icons/Ionicons'; // For react-native-vector-icons
 
 export default function HomeScreen() {
   const { user, logout } = useAuth();
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   const handleLogout = () => {
     Alert.alert(
@@ -113,15 +116,22 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => router.push('/place-order')} // Added navigation
+              onPress={() => router.push('/place-order')}
             >
-              <Text style={styles.actionButtonText}>Place New Order</Text>
+              <View style={styles.actionButtonContent}>
+                <Ionicons name="add-circle-outline" size={24} color="#495057" />
+                <Text style={styles.actionButtonText}>Place New Order</Text>
+              </View>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}
+            <TouchableOpacity 
+              style={styles.actionButton}
               onPress={() => router.push('/orders')}
-              >View Order History</Text>
+            >
+              <View style={styles.actionButtonContent}>
+                <Ionicons name="list-outline" size={24} color="#495057" />
+                <Text style={styles.actionButtonText}>View Order History</Text>
+              </View>
             </TouchableOpacity>
           </>
         )}
@@ -129,11 +139,17 @@ export default function HomeScreen() {
         {user?.role === 'driver' && (
           <>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>View Available Deliveries</Text>
+              <View style={styles.actionButtonContent}>
+                <Ionicons name="car-outline" size={24} color="#495057" />
+                <Text style={styles.actionButtonText}>View Available Deliveries</Text>
+              </View>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>My Delivery History</Text>
+              <View style={styles.actionButtonContent}>
+                <Ionicons name="time-outline" size={24} color="#495057" />
+                <Text style={styles.actionButtonText}>My Delivery History</Text>
+              </View>
             </TouchableOpacity>
           </>
         )}
@@ -141,26 +157,41 @@ export default function HomeScreen() {
         {user?.role === 'admin' && (
           <>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>Manage Users</Text>
+              <View style={styles.actionButtonContent}>
+                <Ionicons name="people-outline" size={24} color="#495057" />
+                <Text style={styles.actionButtonText}>Manage Users</Text>
+              </View>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>View All Orders</Text>
+              <View style={styles.actionButtonContent}>
+                <Ionicons name="receipt-outline" size={24} color="#495057" />
+                <Text style={styles.actionButtonText}>View All Orders</Text>
+              </View>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>Analytics Dashboard</Text>
+              <View style={styles.actionButtonContent}>
+                <Ionicons name="analytics-outline" size={24} color="#495057" />
+                <Text style={styles.actionButtonText}>Analytics Dashboard</Text>
+              </View>
             </TouchableOpacity>
           </>
         )}
 
         <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Edit Profile</Text>
+          <View style={styles.actionButtonContent}>
+            <Ionicons name="person-outline" size={24} color="#495057" />
+            <Text style={styles.actionButtonText}>Edit Profile</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
+        <View style={styles.logoutButtonContent}>
+          <Ionicons name="log-out-outline" size={20} color="#fff" />
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </View>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -172,7 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ce6011',
     paddingHorizontal: 20,
     paddingVertical: 30,
     paddingTop: 60,
@@ -189,13 +220,13 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 16,
-    color: '#666',
+    color: '#ffff',
     marginBottom: 5,
   },
   nameText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#ffff',
   },
   profileCard: {
     backgroundColor: '#fff',
@@ -252,8 +283,14 @@ const styles = StyleSheet.create({
     flex: 2,
     textAlign: 'right',
   },
+  actionsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffff',
+    marginBottom: 20,
+  },
   actionsCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ce6011',
     marginHorizontal: 20,
     marginBottom: 20,
     borderRadius: 15,
@@ -266,12 +303,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  actionsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   actionButton: {
     backgroundColor: '#f8f9fa',
@@ -282,11 +315,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e9ecef',
   },
+  actionButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
   actionButtonText: {
     fontSize: 16,
     color: '#495057',
     fontWeight: '500',
-    textAlign: 'center',
   },
   logoutButton: {
     backgroundColor: '#dc3545',
@@ -303,10 +341,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  logoutButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
   logoutButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'center',
   },
 });

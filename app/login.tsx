@@ -140,8 +140,8 @@ export default function LoginScreen() {
               >
                 <Ionicons
                   name={showPassword ? 'eye-off' : 'eye'}
-                  size={24}
-                  color="#666"
+                  size={22}
+                  color="#333"
                 />
               </TouchableOpacity>
             </View>
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
     padding: 15,
     fontSize: 16,
     backgroundColor: '#f9f9f9',
+    color: '#333', // Added explicit text color
   },
   passwordContainer: {
     position: 'relative',
@@ -247,14 +248,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#f9f9f9',
     paddingRight: 50, // Make space for the eye icon
+    color: '#333', // Added explicit text color - THIS IS THE KEY FIX
   },
   eyeIcon: {
     position: 'absolute',
     right: 15,
-    padding: 5,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 15,
+    minWidth: 30,
+    minHeight: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loginButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#db2127',
     borderRadius: 8,
     padding: 15,
     alignItems: 'center',
@@ -280,7 +288,7 @@ const styles = StyleSheet.create({
   },
   signupLink: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#db2127',
     fontWeight: '600',
   },
 });

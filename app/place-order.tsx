@@ -1,4 +1,4 @@
-// app/place-order.tsx - With visible labels
+// app/place-order.tsx - With keyboard handling fixes
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -6,6 +6,8 @@ import {
   Alert,
   FlatList,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -270,155 +272,174 @@ export default function PlaceOrderScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Place Order</Text>
-        <Text style={styles.subtitle}>Select gas cylinders and delivery details</Text>
-      </View>
-
-      {/* Error Display */}
-      {error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity onPress={loadCylinders} style={styles.retryBtn}>
-            <Text style={styles.retryBtnText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : null}
-
-      {/* Available Cylinders */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Available Gas Cylinders</Text>
-        {loading && cylinders.length === 0 ? (
-          <ActivityIndicator size="large" color="#007bff" style={styles.loader} />
-        ) : (
-          <FlatList
-            data={cylinders}
-            renderItem={renderCylinder}
-            keyExtractor={item => item.id}
-            scrollEnabled={false}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>No gas cylinders available</Text>
-            }
-          />
-        )}
-      </View>
-
-      {/* Cart */}
-      {cart.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Order ({cart.length} items)</Text>
-          <FlatList
-            data={cart}
-            renderItem={renderCartItem}
-            keyExtractor={item => item.id}
-            scrollEnabled={false}
-          />
-        </View>
-      )}
-
-      {/* Delivery Details */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Delivery Details</Text>
-        
-        {/* Delivery Address with Label */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>
-            Delivery Address <Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your full delivery address"
-            value={deliveryAddress}
-            onChangeText={setDeliveryAddress}
-            multiline
-            editable={!loading}
-          />
-        </View>
-
-        {/* Coordinates Row with Labels */}
-        <View style={styles.row}>
-          <View style={[styles.inputGroup, styles.halfInputGroup]}>
-            <Text style={styles.inputLabel}>
-              Latitude <Text style={styles.required}>*</Text>
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="0.3476"
-              value={deliveryLat}
-              onChangeText={setDeliveryLat}
-              keyboardType="numeric"
-              editable={!loading}
-            />
-          </View>
-          
-          <View style={[styles.inputGroup, styles.halfInputGroup]}>
-            <Text style={styles.inputLabel}>
-              Longitude <Text style={styles.required}>*</Text>
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="32.5825"
-              value={deliveryLng}
-              onChangeText={setDeliveryLng}
-              keyboardType="numeric"
-              editable={!loading}
-            />
-          </View>
-        </View>
-
-        {/* Special Instructions with Label */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Special Instructions</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Any special delivery instructions (optional)"
-            value={instructions}
-            onChangeText={setInstructions}
-            multiline
-            numberOfLines={3}
-            editable={!loading}
-          />
-        </View>
-      </View>
-
-      {/* Order Summary */}
-      {cart.length > 0 && (
-        <View style={styles.summarySection}>
-          <Text style={styles.sectionTitle}>Order Summary</Text>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal:</Text>
-            <Text style={styles.summaryValue}>UGX {subtotal.toLocaleString()}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Delivery Fee:</Text>
-            <Text style={styles.summaryValue}>UGX {DELIVERY_FEE.toLocaleString()}</Text>
-          </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={styles.totalValue}>UGX {total.toLocaleString()}</Text>
-          </View>
-        </View>
-      )}
-
-      {/* Place Order Button */}
-      <TouchableOpacity
-        style={[styles.orderBtn, !canPlaceOrder() && styles.disabledBtn]}
-        onPress={placeOrder}
-        disabled={!canPlaceOrder()}
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollViewContent}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.orderBtnText}>
-            Place Order - UGX {total.toLocaleString()}
-          </Text>
-        )}
-      </TouchableOpacity>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Place Order</Text>
+          <Text style={styles.subtitle}>Select gas cylinders and delivery details</Text>
+        </View>
 
-      <View style={styles.bottomSpace} />
-    </ScrollView>
+        {/* Error Display */}
+        {error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity onPress={loadCylinders} style={styles.retryBtn}>
+              <Text style={styles.retryBtnText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
+        {/* Available Cylinders */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Available Gas Cylinders</Text>
+          {loading && cylinders.length === 0 ? (
+            <ActivityIndicator size="large" color="#007bff" style={styles.loader} />
+          ) : (
+            <FlatList
+              data={cylinders}
+              renderItem={renderCylinder}
+              keyExtractor={item => item.id}
+              scrollEnabled={false}
+              ListEmptyComponent={
+                <Text style={styles.emptyText}>No gas cylinders available</Text>
+              }
+            />
+          )}
+        </View>
+
+        {/* Cart */}
+        {cart.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Your Order ({cart.length} items)</Text>
+            <FlatList
+              data={cart}
+              renderItem={renderCartItem}
+              keyExtractor={item => item.id}
+              scrollEnabled={false}
+            />
+          </View>
+        )}
+
+        {/* Delivery Details */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Delivery Details</Text>
+          
+          {/* Delivery Address with Label */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>
+              Delivery Address <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your full delivery address"
+              placeholderTextColor="#999"
+              value={deliveryAddress}
+              onChangeText={setDeliveryAddress}
+              multiline
+              editable={!loading}
+              returnKeyType="next"
+            />
+          </View>
+
+          {/* Coordinates Row with Labels */}
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, styles.halfInputGroup]}>
+              <Text style={styles.inputLabel}>
+                Latitude <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0.3476"
+                placeholderTextColor="#999"
+                value={deliveryLat}
+                onChangeText={setDeliveryLat}
+                keyboardType="numeric"
+                editable={!loading}
+                returnKeyType="next"
+              />
+            </View>
+            
+            <View style={[styles.inputGroup, styles.halfInputGroup]}>
+              <Text style={styles.inputLabel}>
+                Longitude <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="32.5825"
+                placeholderTextColor="#999"
+                value={deliveryLng}
+                onChangeText={setDeliveryLng}
+                keyboardType="numeric"
+                editable={!loading}
+                returnKeyType="next"
+              />
+            </View>
+          </View>
+
+          {/* Special Instructions with Label */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Special Instructions</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Any special delivery instructions (optional)"
+              placeholderTextColor="#999"
+              value={instructions}
+              onChangeText={setInstructions}
+              multiline
+              numberOfLines={3}
+              editable={!loading}
+              returnKeyType="done"
+            />
+          </View>
+        </View>
+
+        {/* Order Summary */}
+        {cart.length > 0 && (
+          <View style={styles.summarySection}>
+            <Text style={styles.sectionTitle}>Order Summary</Text>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Subtotal:</Text>
+              <Text style={styles.summaryValue}>UGX {subtotal.toLocaleString()}</Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Delivery Fee:</Text>
+              <Text style={styles.summaryValue}>UGX {DELIVERY_FEE.toLocaleString()}</Text>
+            </View>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Total:</Text>
+              <Text style={styles.totalValue}>UGX {total.toLocaleString()}</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Place Order Button */}
+        <TouchableOpacity
+          style={[styles.orderBtn, !canPlaceOrder() && styles.disabledBtn]}
+          onPress={placeOrder}
+          disabled={!canPlaceOrder()}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.orderBtnText}>
+              Place Order - UGX {total.toLocaleString()}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        <View style={styles.bottomSpace} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -427,6 +448,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingBottom: 40, // Extra padding at bottom for keyboard
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -434,7 +462,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ce6011',
     padding: 20,
     paddingTop: 60,
     marginBottom: 10,
@@ -445,10 +473,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 5,
+    color: '#ffff',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#ffff',
     textAlign: 'center',
   },
   errorContainer: {
@@ -503,6 +532,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
+    color: '#333',
   },
   loader: {
     padding: 20,
@@ -537,6 +567,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+    color: '#333',
   },
   cylinderDetails: {
     fontSize: 14,
@@ -567,7 +598,7 @@ const styles = StyleSheet.create({
   },
   cartItem: {
     flexDirection: 'row',
-    alignItems: 'flex-start', // Align items to the start for better layout with new lines
+    alignItems: 'flex-start',
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
@@ -582,26 +613,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
   },
   cartInfo: {
-    flex: 1, // Allow cart info to take available space
+    flex: 1,
   },
   cartName: {
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 4,
+    color: '#333',
   },
   cartPrice: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 8, // Add some space below price
+    marginBottom: 8,
   },
-  quantityControlsContainer: { // New style for the container holding quantity controls and total
-    width: '100%', // Take full width
-    alignItems: 'flex-start', // Align to start
+  quantityControlsContainer: {
+    width: '100%',
+    alignItems: 'flex-start',
   },
   quantityControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8, // Space between buttons and total
+    marginBottom: 8,
   },
   qtyBtn: {
     backgroundColor: '#007bff',
@@ -622,15 +654,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     minWidth: 25,
     textAlign: 'center',
+    color: '#333',
   },
-  itemTotalNew: { // New style for the item total
+  itemTotalNew: {
     fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'left', // Align to left since it's on a new line
-    marginTop: 5, // Space from quantity controls
+    textAlign: 'left',
+    marginTop: 5,
+    color: '#333',
   },
   inputGroup: {
-    marginBottom: 15,
+    marginBottom: 20, // Increased margin for better spacing
   },
   halfInputGroup: {
     width: '47%',
@@ -639,7 +673,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 6,
+    marginBottom: 8, // Increased margin
   },
   required: {
     color: '#d63384',
@@ -653,14 +687,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
     color: '#333',
+    minHeight: 45, // Minimum height for better touch target
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   textArea: {
-    height: 80,
+    height: 100, // Increased height
     textAlignVertical: 'top',
+    paddingTop: 12, // Ensure top padding for multiline
   },
   summaryRow: {
     flexDirection: 'row',
@@ -674,6 +710,7 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#333',
   },
   totalRow: {
     flexDirection: 'row',
@@ -700,6 +737,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     elevation: 2,
+    marginTop: 30, // Extra margin to ensure it's not hidden
   },
   orderBtnText: {
     color: '#fff',
@@ -710,6 +748,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
   bottomSpace: {
-    height: 20,
+    height: 40, // Increased bottom space
   },
 });
