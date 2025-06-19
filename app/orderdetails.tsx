@@ -375,7 +375,7 @@ export default function OrderDetailsScreen() {
         </View>
 
         {/* Order Items */}
-        <View style={styles.sectionCard}>
+      <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Order Items ({order.items?.length || 0})</Text>
           {order.items?.map((item, index) => (
             <View key={index} style={styles.itemRow}>
@@ -400,24 +400,18 @@ export default function OrderDetailsScreen() {
           {/* Order Summary */}
           <View style={styles.orderSummary}>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Subtotal</Text>
+              <Text style={styles.summaryLabel}>Total for Gas Cylinders</Text>
               <Text style={styles.summaryValue}>
-                UGX {(order.totalAmount - (order.deliveryFee || 0))?.toLocaleString() || '0'}
+                UGX {order.totalAmount?.toLocaleString() || '0'}
               </Text>
             </View>
-            {order.deliveryFee !== undefined && order.deliveryFee > 0 && (
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Delivery Fee</Text>
-                <Text style={styles.summaryValue}>UGX {order.deliveryFee.toLocaleString() || '0'}</Text>
-              </View>
-            )}
+            {/* Removed Delivery Fee section */}
             <View style={[styles.summaryRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Total Amount</Text>
+              <Text style={styles.totalLabel}>Grand Total</Text>
               <Text style={styles.totalValue}>UGX {order.totalAmount?.toLocaleString() || '0'}</Text>
             </View>
           </View>
         </View>
-
         {/* Delivery Information */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Delivery Information</Text>
