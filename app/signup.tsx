@@ -1,4 +1,3 @@
-// app/signup.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -12,10 +11,11 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+// import { Picker } from '@react-native-picker/picker'; // Commented out as it's not being used in the provided code
 import { useRouter } from 'expo-router';
-import { useAuth } from '../contexts/AuthContext';
-import { apiService, RegisterData } from '../services/api';
+import { useAuth } from '../contexts/AuthContext'; // Assuming AuthContext provides 'register'
+import { apiService, RegisterData } from '../services/api'; // Assuming apiService and RegisterData are defined
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for a back arrow icon
 
 export default function SignupScreen() {
   const [formData, setFormData] = useState({
@@ -31,15 +31,20 @@ export default function SignupScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
-  const { register } = useAuth();
+  const { register } = useAuth(); // Assuming useAuth hook provides a register function
   const router = useRouter();
 
+  /**
+   * Handles changes in text input fields.
+   * @param field - The name of the form field.
+   * @param value - The new value of the field.
+   */
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-    // Clear error when user starts typing
+    // Clear error for the specific field when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -48,6 +53,10 @@ export default function SignupScreen() {
     }
   };
 
+  /**
+   * Validates the form data before submission.
+   * @returns {boolean} - True if the form is valid, false otherwise.
+   */
   const validateForm = (): boolean => {
     const newErrors: {[key: string]: string} = {};
     const { email, password, confirmPassword, firstName, lastName, phone } = formData;
@@ -65,12 +74,12 @@ export default function SignupScreen() {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Password validation
+    // Password validation: minimum length
     if (password && password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters long';
     }
 
-    // Password strength validation (optional but recommended)
+    // Password strength validation: requires letters and numbers
     if (password && password.length >= 6) {
       const hasNumber = /\d/.test(password);
       const hasLetter = /[a-zA-Z]/.test(password);
@@ -79,17 +88,17 @@ export default function SignupScreen() {
       }
     }
 
-    // Confirm password validation
+    // Confirm password validation: must match password
     if (password && confirmPassword && password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Phone validation
+    // Phone validation: flexible format, accepts + and digits
     if (phone && !isValidPhone(phone)) {
       newErrors.phone = 'Please enter a valid phone number';
     }
 
-    // Name validation (no numbers or special characters)
+    // Name validation: only letters and spaces allowed
     if (firstName && !/^[a-zA-Z\s]+$/.test(firstName.trim())) {
       newErrors.firstName = 'First name should only contain letters';
     }
@@ -101,46 +110,62 @@ export default function SignupScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Checks if an email address is valid.
+   * @param email - The email string to validate.
+   * @returns {boolean} - True if the email is valid, false otherwise.
+   */
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  /**
+   * Checks if a phone number is valid using a flexible regex.
+   * @param phone - The phone number string to validate.
+   * @returns {boolean} - True if the phone number is valid, false otherwise.
+   */
   const isValidPhone = (phone: string): boolean => {
-    // More flexible phone validation - accepts various formats
+    // Cleans the phone number by removing spaces, hyphens, and parentheses
     const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+    // Regex for phone numbers: optional '+', then 1-9, then 7-14 digits
     const phoneRegex = /^[\+]?[1-9][\d]{7,14}$/;
     return phoneRegex.test(cleanPhone);
   };
 
+  /**
+   * Handles the signup process.
+   * Validates the form, calls the API service to create a user,
+   * and handles success or error responses.
+   */
   const handleSignup = async () => {
     if (!validateForm()) {
-      return;
+      return; // Stop if form validation fails
     }
 
     try {
-      setIsLoading(true);
+      setIsLoading(true); // Start loading state
       
+      // Destructure formData, excluding confirmPassword as it's not sent to API
       const { confirmPassword, ...registrationData } = formData;
       
-      // Clean and format data according to your API interface
+      // Clean and format data according to your API interface (RegisterData)
       const cleanedData: RegisterData = {
         email: registrationData.email.toLowerCase().trim(),
         password: registrationData.password,
         firstName: registrationData.firstName.trim(),
         lastName: registrationData.lastName.trim(),
-        phone: registrationData.phone.replace(/[\s\-\(\)]/g, ''),
+        phone: registrationData.phone.replace(/[\s\-\(\)]/g, ''), // Clean phone number
         role: registrationData.role,
-        address: registrationData.address?.trim() || undefined,
+        address: registrationData.address?.trim() || undefined, // Address is optional
       };
 
-      // Use direct user creation endpoint (matches your UserController.createUser)
+      // Call the createUser endpoint from apiService
       const newUser = await apiService.createUser(cleanedData);
       
-      // If you have an AuthContext, you might want to automatically log them in
-      // or just let them navigate to login
-      console.log('User created successfully:', newUser);
-      
+      console.log('User created successfully:', newUser); // Log success
+
+      // Show success alert and navigate to login
       Alert.alert(
         'Success', 
         'Account created successfully! You can now login with your credentials.',
@@ -148,7 +173,7 @@ export default function SignupScreen() {
           {
             text: 'OK',
             onPress: () => {
-              // Clear form data
+              // Clear form data after successful registration
               setFormData({
                 email: '',
                 password: '',
@@ -159,24 +184,24 @@ export default function SignupScreen() {
                 role: 'customer',
                 address: '',
               });
-              // Navigate to login
-              router.push('/login');
+              // Navigate to the login screen (root path in Expo Router)
+              router.push('/');
             }
           }
         ]
       );
       
     } catch (error: any) {
-      console.error('Registration error:', error);
-      
+      console.error('Registration error:', error); // Log the error
+
       let errorMessage = 'An error occurred during registration';
       
-      // Handle specific backend error messages from your UserController
+      // Custom error handling based on backend messages from your UserController
       if (error.message) {
         switch (true) {
           case error.message.includes('Email already exists'):
             errorMessage = 'This email address is already registered. Please use a different email or try logging in.';
-            // Highlight email field
+            // Highlight the email field by setting an error for it
             setErrors(prev => ({ ...prev, email: 'Email already registered' }));
             break;
           case error.message.includes('Missing required fields'):
@@ -193,34 +218,54 @@ export default function SignupScreen() {
             errorMessage = 'Server error. Please try again later or contact support.';
             break;
           default:
-            errorMessage = error.message;
+            errorMessage = error.message; // Use the raw error message if no specific handler
         }
       }
       
+      // Show error alert to the user
       Alert.alert('Registration Failed', errorMessage);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // End loading state
     }
   };
 
+  /**
+   * Navigates the user to the login screen.
+   */
   const navigateToLogin = () => {
-    router.push('/login');
+    router.push('/');
+  };
+
+  const handleGoBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      // Fallback if there's no screen to go back to (e.g., direct access)
+      router.replace('/'); // Or navigate to a specific default screen
+    }
   };
 
   return (
     <KeyboardAvoidingView 
       style={styles.container}
+      // Adjust behavior based on platform to avoid keyboard obscuring inputs
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled" // Ensures taps outside text inputs don't dismiss keyboard
+        showsVerticalScrollIndicator={false} // Hides the vertical scroll indicator
       >
         <View style={styles.formContainer}>
+          {/* Back Button */}
+          <TouchableOpacity style={styles.backButton} onPress={handleGoBack} disabled={isLoading}>
+            <Ionicons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
+
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Sign up to get started</Text>
 
+          {/* First Name & Last Name Row */}
           <View style={styles.row}>
             <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
               <Text style={styles.label}>First Name *</Text>
@@ -229,9 +274,9 @@ export default function SignupScreen() {
                 placeholder="First name"
                 value={formData.firstName}
                 onChangeText={(value) => handleInputChange('firstName', value)}
-                autoCapitalize="words"
-                editable={!isLoading}
-                maxLength={50}
+                autoCapitalize="words" // Capitalize first letter of each word
+                editable={!isLoading} // Disable input when loading
+                maxLength={50} // Max length for first name
               />
               {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
             </View>
@@ -243,14 +288,15 @@ export default function SignupScreen() {
                 placeholder="Last name"
                 value={formData.lastName}
                 onChangeText={(value) => handleInputChange('lastName', value)}
-                autoCapitalize="words"
-                editable={!isLoading}
-                maxLength={50}
+                autoCapitalize="words" // Capitalize first letter of each word
+                editable={!isLoading} // Disable input when loading
+                maxLength={50} // Max length for last name
               />
               {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
             </View>
           </View>
 
+          {/* Email Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email *</Text>
             <TextInput
@@ -258,15 +304,16 @@ export default function SignupScreen() {
               placeholder="Enter your email"
               value={formData.email}
               onChangeText={(value) => handleInputChange('email', value)}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-              maxLength={100}
+              keyboardType="email-address" // Optimized keyboard for email
+              autoCapitalize="none" // Prevent auto-capitalization
+              autoCorrect={false} // Disable auto-correction
+              editable={!isLoading} // Disable input when loading
+              maxLength={100} // Max length for email
             />
             {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
           </View>
 
+          {/* Phone Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Phone *</Text>
             <TextInput
@@ -274,14 +321,15 @@ export default function SignupScreen() {
               placeholder="Enter your phone number"
               value={formData.phone}
               onChangeText={(value) => handleInputChange('phone', value)}
-              keyboardType="phone-pad"
-              editable={!isLoading}
-              maxLength={20}
+              keyboardType="phone-pad" // Optimized keyboard for phone numbers
+              editable={!isLoading} // Disable input when loading
+              maxLength={20} // Max length for phone number
             />
             {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
           </View>
 
-          <View style={styles.inputContainer}>
+          {/* Role Picker (commented out in original code) */}
+          {/* <View style={styles.inputContainer}>
             <Text style={styles.label}>Role</Text>
             <View style={styles.pickerContainer}>
               <Picker
@@ -295,8 +343,9 @@ export default function SignupScreen() {
                 <Picker.Item label="Admin" value="admin" />
               </Picker>
             </View>
-          </View>
+          </View> */}
 
+          {/* Address Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Address</Text>
             <TextInput
@@ -304,13 +353,14 @@ export default function SignupScreen() {
               placeholder="Enter your address (optional)"
               value={formData.address}
               onChangeText={(value) => handleInputChange('address', value)}
-              multiline
-              numberOfLines={3}
-              editable={!isLoading}
-              maxLength={200}
+              multiline // Allow multiple lines of text
+              numberOfLines={3} // Initial number of lines
+              editable={!isLoading} // Disable input when loading
+              maxLength={200} // Max length for address
             />
           </View>
 
+          {/* Password Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password *</Text>
             <TextInput
@@ -318,16 +368,17 @@ export default function SignupScreen() {
               placeholder="Enter your password"
               value={formData.password}
               onChangeText={(value) => handleInputChange('password', value)}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-              maxLength={50}
+              secureTextEntry // Hide text for password
+              autoCapitalize="none" // Prevent auto-capitalization
+              autoCorrect={false} // Disable auto-correction
+              editable={!isLoading} // Disable input when loading
+              maxLength={50} // Max length for password
             />
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
             <Text style={styles.helpText}>At least 6 characters with letters and numbers</Text>
           </View>
 
+          {/* Confirm Password Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Confirm Password *</Text>
             <TextInput
@@ -335,19 +386,20 @@ export default function SignupScreen() {
               placeholder="Confirm your password"
               value={formData.confirmPassword}
               onChangeText={(value) => handleInputChange('confirmPassword', value)}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-              maxLength={50}
+              secureTextEntry // Hide text for password
+              autoCapitalize="none" // Prevent auto-capitalization
+              autoCorrect={false} // Disable auto-correction
+              editable={!isLoading} // Disable input when loading
+              maxLength={50} // Max length for confirm password
             />
             {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
           </View>
 
+          {/* Signup Button */}
           <TouchableOpacity
             style={[styles.signupButton, isLoading && styles.disabledButton]}
             onPress={handleSignup}
-            disabled={isLoading}
+            disabled={isLoading} // Disable button when loading
           >
             {isLoading ? (
               <View style={styles.loadingContainer}>
@@ -359,6 +411,7 @@ export default function SignupScreen() {
             )}
           </TouchableOpacity>
 
+          {/* Login Link */}
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
             <TouchableOpacity onPress={navigateToLogin} disabled={isLoading}>
@@ -371,45 +424,54 @@ export default function SignupScreen() {
   );
 }
 
+// StyleSheet for component styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#1a1a1a', // Dark grey background for the overall screen
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'center', // Center content vertically
     padding: 20,
   },
   formContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
+    backgroundColor: '#ffffff', // White background for the form card
+    borderRadius: 10, // Rounded corners
     padding: 30,
-    shadowColor: '#000',
+    shadowColor: '#000', // Shadow for depth
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 5, // Android shadow
+  },
+  backButton: {
+    position: 'absolute', // Position absolutely within the formContainer
+    top: 15, // Adjust as needed for spacing from the top
+    left: 15, // Adjust as needed for spacing from the left
+    zIndex: 10, // Ensure it's above other elements
+    padding: 5, // Add padding for easier tapping
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: '#333',
+    color: '#333', // Dark grey text
+    marginTop: 20, // Add margin to push content down from back button
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 30,
-    color: '#666',
+    color: '#666', // Medium grey text
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: 'row', // Arrange children horizontally
+    alignItems: 'flex-start', // Align items to the start of the row
   },
   inputContainer: {
     marginBottom: 20,
@@ -422,27 +484,27 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: '#ddd', // Light grey border
+    borderRadius: 8, // Rounded input corners
     padding: 15,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f9f9f9', // Very light grey background for inputs
   },
   inputError: {
-    borderColor: '#ff6b6b',
-    backgroundColor: '#fff5f5',
+    borderColor: '#ff6b6b', // Red border for errors
+    backgroundColor: '#fff5f5', // Light red background for error inputs
   },
   textArea: {
-    height: 80,
-    textAlignVertical: 'top',
+    height: 80, // Fixed height for textarea
+    textAlignVertical: 'top', // Align text to top in multiline input
   },
   errorText: {
-    color: '#ff6b6b',
+    color: '#ff6b6b', // Red text for error messages
     fontSize: 14,
     marginTop: 5,
   },
   helpText: {
-    color: '#888',
+    color: '#888', // Grey text for help messages
     fontSize: 12,
     marginTop: 5,
   },
@@ -456,7 +518,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   signupButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#db2127', // Red button background
     borderRadius: 8,
     padding: 15,
     alignItems: 'center',
@@ -464,10 +526,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#ccc', // Lighter grey for disabled button
   },
   signupButtonText: {
-    color: '#ffffff',
+    color: '#ffffff', // White text on button
     fontSize: 18,
     fontWeight: '600',
   },
@@ -486,10 +548,10 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#007AFF', // Blue link color
     fontWeight: '600',
   },
   disabledLink: {
-    color: '#ccc',
+    color: '#ccc', // Lighter grey for disabled link
   },
 });

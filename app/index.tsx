@@ -1,5 +1,5 @@
 // login.tsx
-import { Ionicons } from '@expo/vector-icons'; // Make sure to install expo vector icons
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -21,7 +21,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Add password visibility state
+  const [showPassword, setShowPassword] = useState(false);
   
   const { login } = useAuth();
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function LoginScreen() {
 
       await login(credentials);
       
-      Alert.alert('Success', 'Login successful!');
+      // Alert.alert('Success', 'Login successful!');
       router.replace('/home');
     } catch (error: any) {
       console.error('Login error:', error); 
@@ -91,25 +91,28 @@ export default function LoginScreen() {
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.formContainer}>
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('../assets/logo.png')} 
-              style={styles.logoImage} 
-              resizeMode="contain" 
-            />
-          </View>
+        <View style={styles.logoContainer}>
+          <Image 
+            source={require('../assets/logo.png')} 
+            style={styles.logoImage} 
+            resizeMode="contain" 
+          />
+        </View>
 
+        <View style={styles.headerContainer}>
           <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to your account</Text>
+          <Text style={styles.subtitle}>Sign in to continue</Text>
+        </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
+        <View style={styles.formContainer}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email Address</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#999"
+              placeholder="your@email.com"
+              placeholderTextColor="#9CA3AF"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -119,13 +122,13 @@ export default function LoginScreen() {
             />
           </View>
 
-          <View style={styles.inputContainer}>
+          <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
-                placeholder="Enter your password"
-                placeholderTextColor="#999"
+                placeholder="Enter password"
+                placeholderTextColor="#9CA3AF"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -134,14 +137,15 @@ export default function LoginScreen() {
                 editable={!isLoading}
               />
               <TouchableOpacity
-                style={styles.eyeIcon}
+                style={styles.eyeButton}
                 onPress={togglePasswordVisibility}
                 disabled={isLoading}
+                activeOpacity={0.7}
               >
                 <Ionicons
-                  name={showPassword ? 'eye-off' : 'eye'}
-                  size={22}
-                  color="#333"
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color="#6B7280"
                 />
               </TouchableOpacity>
             </View>
@@ -151,20 +155,23 @@ export default function LoginScreen() {
             style={[styles.loginButton, isLoading && styles.disabledButton]}
             onPress={handleLogin}
             disabled={isLoading}
+            activeOpacity={0.8}
           >
             {isLoading ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.loginButtonText}>Login</Text>
+              <Text style={styles.loginButtonText}>Sign In</Text>
             )}
           </TouchableOpacity>
+        </View>
 
-          <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>Do not have an account? </Text>
-            <TouchableOpacity onPress={navigateToSignup} disabled={isLoading}>
-              <Text style={styles.signupLink}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerText}>
+            Do not have an account?{' '}
+            <Text style={styles.signupLink} onPress={navigateToSignup}>
+              Sign Up
+            </Text>
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -174,121 +181,114 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  formContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    padding: 30,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-    color: '#333',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 30,
-    color: '#666',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 40,
   },
   logoImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75, 
+    width: 80,
+    height: 80,
   },
-  inputContainer: {
-    marginBottom: 20,
+  headerContainer: {
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  formContainer: {
+    marginBottom: 32,
+  },
+  inputGroup: {
+    marginBottom: 24,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
+    color: '#374151',
     marginBottom: 8,
-    color: '#333',
+    letterSpacing: 0.5,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
+    height: 52,
+    backgroundColor: '#F9FAFB',
+    paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
-    color: '#333', // Added explicit text color
+    color: '#111827',
+    fontWeight: '400',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   passwordContainer: {
     position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   passwordInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
+    height: 52,
+    backgroundColor: '#F9FAFB',
+    paddingHorizontal: 16,
+    paddingRight: 48,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
-    paddingRight: 50, // Make space for the eye icon
-    color: '#333', // Added explicit text color - THIS IS THE KEY FIX
+    color: '#111827',
+    fontWeight: '400',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  eyeIcon: {
+  eyeButton: {
     position: 'absolute',
-    right: 15,
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 15,
-    minWidth: 30,
-    minHeight: 30,
+    right: 16,
+    top: 0,
+    height: 52,
+    width: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
   loginButton: {
-    backgroundColor: '#bc2629',
-    borderRadius: 8,
-    padding: 15,
+    height: 52,
+    backgroundColor: '#DC2626',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 8,
+    borderRadius: 8,
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#D1D5DB',
   },
   loginButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: '600',
+    letterSpacing: 0.5,
   },
-  signupContainer: {
+  footerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  signupText: {
-    fontSize: 16,
-    color: '#666',
+  footerText: {
+    fontSize: 15,
+    color: '#6B7280',
   },
   signupLink: {
-    fontSize: 16,
-    color: '#db2127',
+    fontSize: 15,
+    color: '#DC2626',
     fontWeight: '600',
   },
 });

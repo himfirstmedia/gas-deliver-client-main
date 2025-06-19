@@ -500,7 +500,7 @@ class ApiService {
 
   async cancelOrder(id: string, token: string): Promise<Order> {
     return this.request<Order>(`/orders/${id}/cancel`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -515,6 +515,13 @@ class ApiService {
       },
     });
   }
+
+//   deleteOrder: async (orderId: string, token: string) => {
+//   // Implementation depends on your API
+//   return api.delete(`/orders/${orderId}`, {
+//     headers: { Authorization: `Bearer ${token}` }
+//   });
+// }
 
   // Customer specific order endpoints
   async getCustomerOrders(customerId: string, token: string, params?: Omit<OrderQueryParams, 'customerId'>): Promise<PaginatedResponse<Order>> {

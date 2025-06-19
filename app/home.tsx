@@ -45,12 +45,12 @@ export default function HomeScreen() {
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'admin':
-        return '#FF6B6B';
+        return '#1f0303';
       case 'driver':
-        return '#4ECDC4';
+        return '#1f0303';
       case 'customer':
       default:
-        return '#45B7D1';
+        return '#1f0303';
     }
   };
 
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#ce6011',
+    backgroundColor: '#F50101',
     paddingHorizontal: 20,
     paddingVertical: 30,
     paddingTop: 60,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   actionsCard: {
-    backgroundColor: '#ce6011',
+    backgroundColor: '#F50101',
     marginHorizontal: 20,
     marginBottom: 20,
     borderRadius: 15,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   logoutButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: 'rgba(9, 1, 1, 0.9)',
     marginHorizontal: 20,
     marginBottom: 40,
     paddingVertical: 15,
