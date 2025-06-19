@@ -607,8 +607,9 @@ const styles = StyleSheet.create({
   orderHeaderTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center', // Changed from 'flex-start' to 'center'
     marginBottom: spacing.lg,
+    flexWrap: 'wrap', // Added to allow wrapping if content overflows
   },
   orderNumber: {
     fontSize: fontSizes.xxxl,

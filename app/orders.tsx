@@ -321,8 +321,11 @@ export default function OrdersScreen() {
             style={styles.detailsButton}
             onPress={() => {
               // Navigate to order details if you have that screen
-              const path = `/order-details/${item.id}` as RelativePathString;
-              router.push(path);
+              // const path = `/orderdetails/${item.id}` ;
+              router.push({
+                pathname:'/orderdetails',
+                params:{id:item.id}
+              });
               // Alert.alert('Order Details', 'Order details screen not implemented yet');
             }}
           >
