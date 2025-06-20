@@ -512,14 +512,14 @@ export default function OrderDetailsScreen() {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[styles.actionButton, styles.reorderButton]}
             onPress={() => {
               Alert.alert('Reorder', 'Reorder functionality is not yet implemented.');
             }}
           >
             <Text style={styles.reorderButtonText}>🔄 Reorder</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View style={styles.bottomSpacer} />
