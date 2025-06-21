@@ -1,10 +1,10 @@
 {
   "expo": {
     "name": "Free Gas delivery",
-    "slug": "Free Gas delivery",
+    "slug": "free-gas-delivery",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "gasdelivery",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,7 +20,6 @@
       "package": "com.himfirstapps.freegasdelivery",
       "edgeToEdgeEnabled": false
     },
-    
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -41,6 +40,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b7b9b680-4d05-4b07-92f9-785ae02bd8f5"
+      }
     }
   }
 }
