@@ -3,15 +3,17 @@ on:
   push:
     branches:
       - main
+      - master
   pull_request:
     branches:
       - main
+      - master
   workflow_dispatch:
     inputs:
       branch:
         description: 'Branch to build'
         required: true
-        default: 'main'
+        default: 'master'
         type: string
 
 env:
