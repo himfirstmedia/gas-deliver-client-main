@@ -81,8 +81,11 @@ export default function EditProfileScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+        <TouchableOpacity
+          style={{ marginLeft: 10, marginRight: 10 }}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
       </View>
@@ -191,12 +194,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     position: 'relative', // For absolute positioning of back button
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-    top: 50, // Align with paddingTop or adjust as needed
-    zIndex: 1, // Ensure it's above other elements
   },
   headerTitle: {
     fontSize: 20,

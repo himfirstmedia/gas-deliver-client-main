@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService, Order, OrderStatus, PaymentStatus } from '../services/api';
+import { Ionicons } from '@expo/vector-icons';
 
 // const { width: screenWidth } = Dimensions.get('window');
 
@@ -264,8 +265,11 @@ export default function OrderDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>← Back</Text>
+          <TouchableOpacity
+            style={{ marginLeft: 10, marginRight: 10 }}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={28} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.title}>Order Details</Text>
           <View style={styles.headerSpacer} />
@@ -282,8 +286,11 @@ export default function OrderDetailsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>← Back</Text>
+          <TouchableOpacity
+            style={{ marginLeft: 10, marginRight: 10 }}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={28} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.title}>Order Details</Text>
           <View style={styles.headerSpacer} />
@@ -305,8 +312,11 @@ export default function OrderDetailsScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>← Back</Text>
+        <TouchableOpacity
+          style={{ marginLeft: 10, marginRight: 10 }}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.title}>Order Details</Text>
         <View style={styles.headerSpacer} />
@@ -459,7 +469,7 @@ export default function OrderDetailsScreen() {
                 <Text style={styles.deliveryIcon}>📝</Text>
                 <View style={styles.deliveryContent}>
                   <Text style={styles.deliveryLabel}>Delivery Notes</Text>
-                  <Text style={styles.deliveryValue}>{order.deliveryAddress}</Text>
+                  <Text style={styles.deliveryValue}>{order.specialInstructions}</Text>
                 </View>
               </View>
             )}
@@ -532,8 +542,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F50101',
-    paddingBottom:50,
-    paddingTop:40
+    paddingBottom:45,
+    paddingTop:30
   },
   centerContainer: {
     flex: 1,

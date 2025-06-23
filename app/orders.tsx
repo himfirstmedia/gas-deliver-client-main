@@ -379,9 +379,11 @@ export default function OrdersScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-          <Text style={styles.backButtonText}>Back</Text>
+        <TouchableOpacity
+          style={{ marginLeft: 10, marginRight: 10 }}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={28} color="#fff" />
         </TouchableOpacity>
 
         <Text style={styles.title}>My Orders</Text>
@@ -438,6 +440,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F50101',
+    paddingTop: 30,
+    paddingBottom: 45
   },
   centerContainer: {
     flex: 1,
@@ -453,7 +457,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    paddingTop: 60,
+    paddingTop: 10,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
