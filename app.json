@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Free Gas delivery",
+    "name": "Free Gas Delivery",
     "slug": "free-gas-delivery",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -24,12 +24,7 @@
         "ACCESS_FINE_LOCATION",
         "INTERNET",
         "ACCESS_NETWORK_STATE"
-      ],
-            "config": {
-        "googleMaps": {
-          "apiKey": "blah"
-        }
-      }
+      ]
 
       
     },

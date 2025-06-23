@@ -1,4 +1,4 @@
-// app/place-order.tsx - Enhanced with map location picker
+// app/place-order.tsx - Fixed version with proper text rendering
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { Stack, useRouter } from 'expo-router';
@@ -20,6 +20,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService, CreateOrderPayload, GasCylinder } from '../services/api';
+import { styles } from './styles/PlaceOrderStyles';
 
 interface CartItem extends GasCylinder {
   quantity: number;
@@ -40,30 +41,43 @@ export default function PlaceOrderScreen() {
   const [cylinders, setCylinders] = useState<GasCylinder[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [deliveryAddress, setDeliveryAddress] = useState(user?.address || '');
-  const [deliveryLat, setDeliveryLat] = useState(user?.latitude?.toString() || '');
-  const [deliveryLng, setDeliveryLng] = useState(user?.longitude?.toString() || '');
+  const [deliveryLat, setDeliveryLat] = useState(() => {
+    const lat = user?.latitude;
+    return (lat && !isNaN(lat)) ? lat.toString() : '';
+  });
+  const [deliveryLng, setDeliveryLng] = useState(() => {
+    const lng = user?.longitude;
+    return (lng && !isNaN(lng)) ? lng.toString() : '';
+  });
   const [instructions, setInstructions] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Map related state
   const [showMap, setShowMap] = useState(false);
-  // FIX 1: CRITICAL: MapView region with invalid coordinates
-  const [mapRegion, setMapRegion] = useState<MapRegion>({
-    latitude: (user?.latitude && !isNaN(user.latitude)) ? user.latitude : 0.3476, // Default to Kampala coordinates
-    longitude: (user?.longitude && !isNaN(user.longitude)) ? user.longitude : 32.5825,
-    latitudeDelta: 0.0922, // Ensure these are always set
-    longitudeDelta: 0.0421, // Ensure these are always set
+  const [mapRegion, setMapRegion] = useState<MapRegion>(() => {
+    const lat = user?.latitude;
+    const lng = user?.longitude;
+    return {
+      latitude: (lat && !isNaN(lat)) ? lat : 0.3476, // Kampala coordinates
+      longitude: (lng && !isNaN(lng)) ? lng : 32.5825,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    };
   });
-  const [selectedLocation, setSelectedLocation] = useState({
-    latitude: (user?.latitude && !isNaN(user.latitude)) ? user.latitude : 0.3476,
-    longitude: (user?.longitude && !isNaN(user.longitude)) ? user.longitude : 32.5825,
+  const [selectedLocation, setSelectedLocation] = useState(() => {
+    const lat = user?.latitude;
+    const lng = user?.longitude;
+    return {
+      latitude: (lat && !isNaN(lat)) ? lat : 0.3476,
+      longitude: (lng && !isNaN(lng)) ? lng : 32.5825,
+    };
   });
   const [locationPermission, setLocationPermission] = useState(false);
-  const [mapError, setMapError] = useState(false); // Added mapError state
-  const [mapReady, setMapReady] = useState(false); // For map loading indicator
+  const [mapError, setMapError] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
-  // FIX 3: CRITICAL: Invalid coordinate validation
+  // Coordinate validation
   const validateCoordinates = (lat: number, lng: number): boolean => {
     return (
       !isNaN(lat) &&
@@ -71,14 +85,11 @@ export default function PlaceOrderScreen() {
       lat >= -90 &&
       lat <= 90 &&
       lng >= -180 &&
-      lng <= 180 &&
-      // lat !== 0 && // Removed this condition to allow valid 0 coordinates
-      // lng !== 0    // Removed this condition to allow valid 0 coordinates
-      true // Always return true here unless specific invalid cases are needed.
+      lng <= 180
     );
   };
 
-  // FIX 3: Helper to update map region safely
+  // Update map region safely
   const updateMapRegion = (latitude: number, longitude: number) => {
     if (validateCoordinates(latitude, longitude)) {
       setMapRegion({
@@ -90,7 +101,7 @@ export default function PlaceOrderScreen() {
       setSelectedLocation({ latitude, longitude });
     } else {
       console.warn('Invalid coordinates provided to updateMapRegion:', latitude, longitude);
-      // Fallback to Kampala coordinates if provided coordinates are invalid
+      // Fallback to Kampala coordinates
       setMapRegion({
         latitude: 0.3476,
         longitude: 32.5825,
@@ -104,31 +115,30 @@ export default function PlaceOrderScreen() {
     }
   };
 
-
   // Load gas cylinders
   useEffect(() => {
     loadCylinders();
     requestLocationPermission();
   }, []);
 
-  // FIX 9: ADDITIONAL: Add map loading timeout
-useEffect(() => {
-  let mapTimeout: ReturnType<typeof setTimeout> | undefined;
-  if (showMap && !mapError && !mapReady) {
-    mapTimeout = setTimeout(() => {
-      console.log('Map loading timeout');
-      setMapError(true);
-    }, 30000); // 30 second timeout
-  }
-
-  return () => {
-    if (mapTimeout) {
-      clearTimeout(mapTimeout);
+  // Map loading timeout
+  useEffect(() => {
+    let mapTimeout: ReturnType<typeof setTimeout> | undefined;
+    if (showMap && !mapError && !mapReady) {
+      mapTimeout = setTimeout(() => {
+        console.log('Map loading timeout');
+        setMapError(true);
+      }, 30000);
     }
-  };
-}, [showMap, mapError, mapReady]);
 
-  // FIX 4: CRITICAL: Location permission handling (improved)
+    return () => {
+      if (mapTimeout) {
+        clearTimeout(mapTimeout);
+      }
+    };
+  }, [showMap, mapError, mapReady]);
+
+  // Location permission handling
   const requestLocationPermission = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -138,8 +148,6 @@ useEffect(() => {
         try {
           const location = await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.Balanced,
-            // Removed 'timeout' and 'maximumAge' as they are not valid LocationOptions.
-            // Relying on the default behavior and the existing try-catch for error handling.
           });
 
           const { latitude, longitude } = location.coords;
@@ -157,7 +165,6 @@ useEffect(() => {
           }
         } catch (locationError) {
           console.log('Failed to get current location:', locationError);
-          // Don't crash, just use default or existing coordinates
         }
       }
     } catch (error) {
@@ -181,7 +188,7 @@ useEffect(() => {
     }
   };
 
-  // Map functions
+  // Get current location
   const getCurrentLocation = async () => {
     if (!locationPermission) {
       Alert.alert('Permission Required', 'Location permission is required to get your current location');
@@ -191,7 +198,6 @@ useEffect(() => {
     try {
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
-        // Removed 'timeout' and 'maximumAge'
       });
       const { latitude, longitude } = location.coords;
 
@@ -199,8 +205,6 @@ useEffect(() => {
         updateMapRegion(latitude, longitude);
         setDeliveryLat(latitude.toString());
         setDeliveryLng(longitude.toString());
-
-        // Reverse geocoding to get address
         await handleReverseGeocode(latitude, longitude);
       } else {
         Alert.alert('Error', 'Invalid coordinates obtained from current location. Please try again.');
@@ -211,7 +215,7 @@ useEffect(() => {
     }
   };
 
-  // FIX 5: CRITICAL: Reverse geocoding error handling
+  // Reverse geocoding
   const handleReverseGeocode = async (latitude: number, longitude: number) => {
     try {
       const results = await Location.reverseGeocodeAsync({
@@ -228,9 +232,9 @@ useEffect(() => {
           result.region,
           result.postalCode,
           result.country
-        ].filter(Boolean); // Filter out null/undefined/empty values
+        ].filter(Boolean);
 
-        const address = addressParts.join(', ').trim(); // Use comma and space for better readability
+        const address = addressParts.join(', ').trim();
         if (address && address.length > 0) {
           setDeliveryAddress(address);
         } else {
@@ -241,13 +245,11 @@ useEffect(() => {
       }
     } catch (error) {
       console.log('Reverse geocoding failed:', error);
-      // Don't crash, just continue without address update
       setDeliveryAddress(`Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`);
     }
   };
 
-
-  // FIX 6: CRITICAL: Map press handler with validation
+  // Map press handler
   const onMapPress = async (event: any) => {
     try {
       const { coordinate } = event.nativeEvent;
@@ -261,8 +263,6 @@ useEffect(() => {
       setSelectedLocation(coordinate);
       setDeliveryLat(coordinate.latitude.toString());
       setDeliveryLng(coordinate.longitude.toString());
-
-      // Handle reverse geocoding safely
       await handleReverseGeocode(coordinate.latitude, coordinate.longitude);
     } catch (error) {
       console.error('Map press error:', error);
@@ -279,7 +279,7 @@ useEffect(() => {
     );
   };
 
-  // Cart operations (keeping existing functions)
+  // Cart operations
   const addToCart = (cylinder: GasCylinder) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === cylinder.id);
@@ -327,11 +327,11 @@ useEffect(() => {
     const lng = parseFloat(deliveryLng);
     return cart.length > 0 &&
       deliveryAddress.trim() &&
-      validateCoordinates(lat, lng) && // Use the new validation function
+      validateCoordinates(lat, lng) &&
       !loading;
   };
 
-  // Place order (keeping existing function)
+  // Place order
   const placeOrder = async () => {
     if (!user || !token) {
       Alert.alert('Error', 'Please log in first');
@@ -346,7 +346,7 @@ useEffect(() => {
     const lat = parseFloat(deliveryLat);
     const lng = parseFloat(deliveryLng);
 
-    if (!validateCoordinates(lat, lng)) { // Use the new validation function
+    if (!validateCoordinates(lat, lng)) {
       Alert.alert('Invalid Coordinates', 'Please enter valid latitude and longitude');
       return;
     }
@@ -396,13 +396,12 @@ useEffect(() => {
     }
   };
 
-  // FIX 7: CRITICAL: Enhanced error handler
+  // Map error handler
   const handleMapError = (error: any) => {
     console.error('Map error:', error);
     setMapError(true);
-    // Don't show alert immediately, let user continue
     setTimeout(() => {
-      if (showMap && mapError) { // Only show if map is still active and error persists
+      if (showMap && mapError) {
         Alert.alert(
           'Map Unavailable',
           'The map is temporarily unavailable. You can still enter coordinates manually.',
@@ -412,20 +411,14 @@ useEffect(() => {
     }, 2000);
   };
 
-  // FIX 8: CRITICAL: Safe map region updates
+  // Safe map region updates
   const onRegionChange = (region: MapRegion) => {
-    // Validate region before updating
     if (validateCoordinates(region.latitude, region.longitude)) {
-      // Optional: Update map region state if needed, but not strictly necessary unless you want
-      // the map to visually reflect the center after user drag without confirming.
-      // For this app's purpose (tapping to select), keeping it focused on selectedLocation is fine.
-      // If you uncomment below, consider using onRegionChangeComplete for better UX.
-      // setMapRegion(region);
+      // Optional: Update map region state if needed
     }
   };
 
-
-  // FIX 2: CRITICAL: Missing error boundaries for MapView (enhanced MapViewComponent)
+  // Map View Component
   const MapViewComponent = () => {
     if (mapError) {
       return (
@@ -446,28 +439,25 @@ useEffect(() => {
           </View>
         )}
         <MapView
-          style={StyleSheet.absoluteFillObject} // Changed to absoluteFillObject for better layout
+          style={StyleSheet.absoluteFillObject}
           region={mapRegion}
           onPress={onMapPress}
           onMapReady={() => {
             console.log('Map ready');
             setMapReady(true);
-            setMapError(false); // Clear any previous map error if map loads successfully
+            setMapError(false);
           }}
-          // Removed 'onError' prop as it is not supported by MapView directly.
-          // Error handling for map loading is now managed via `onMapReady` and a timeout mechanism.
           showsUserLocation={locationPermission}
           showsMyLocationButton={false}
           loadingEnabled={true}
           loadingIndicatorColor="#F50101"
           loadingBackgroundColor="#ffffff"
-          // Add these crash prevention props
           pitchEnabled={false}
           rotateEnabled={false}
           scrollEnabled={true}
           zoomEnabled={true}
           moveOnMarkerPress={false}
-          onRegionChange={onRegionChange} // Added onRegionChange
+          onRegionChange={onRegionChange}
           mapType="standard"
         >
           <Marker
@@ -514,8 +504,7 @@ useEffect(() => {
     </View>
   );
 
-
-  // Render functions (keeping existing ones)
+  // Render functions
   const renderCylinder = ({ item }: { item: GasCylinder }) => (
     <View style={styles.cylinderCard}>
       {item.imageUrl && (
@@ -614,7 +603,7 @@ useEffect(() => {
           </TouchableOpacity>
         </View>
 
-        <MapViewComponent /> {/* Replaced direct MapView with component */}
+        <MapViewComponent />
 
         <View style={styles.mapFooter}>
           <Text style={styles.coordinatesText}>
@@ -708,7 +697,14 @@ useEffect(() => {
             <Text style={styles.sectionTitle}>Delivery Details</Text>
 
             {/* Map Location Picker Button */}
-            <TouchableOpacity style={styles.mapPickerBtn} onPress={() => { setShowMap(true); setMapReady(false); setMapError(false); }}>
+            <TouchableOpacity 
+              style={styles.mapPickerBtn} 
+              onPress={() => { 
+                setShowMap(true); 
+                setMapReady(false); 
+                setMapError(false); 
+              }}
+            >
               <Ionicons name="location-outline" size={24} color="#F50101" />
               <Text style={styles.mapPickerText}>Select Location on Map</Text>
               <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -787,362 +783,3 @@ useEffect(() => {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-    paddingBottom:40
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    paddingBottom: 40,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorContainer: {
-    backgroundColor: '#fee',
-    margin: 15,
-    padding: 15,
-    borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#d63384',
-    flex: 1,
-  },
-  retryBtn: {
-    backgroundColor: '#d63384',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 5,
-  },
-  retryBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  loginBtn: {
-    backgroundColor: '#007bff',
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 15,
-  },
-  loginBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  section: {
-    backgroundColor: '#fff',
-    margin: 10,
-    padding: 20,
-    borderRadius: 10,
-    elevation: 1,
-  },
-  summarySection: {
-    backgroundColor: '#231f20',
-    margin: 10,
-    padding: 20,
-    borderRadius: 10,
-    elevation: 1,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333',
-  },
-  loader: {
-    padding: 20,
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: '#666',
-    fontStyle: 'italic',
-    padding: 20,
-  },
-  cylinderCard: {
-    flexDirection: 'row',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    alignItems: 'center',
-  },
-  cylinderImageContainer: {
-    marginRight: 12,
-  },
-  cylinderImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-  },
-  cylinderInfo: {
-    flex: 1,
-    marginRight: 15,
-  },
-  cylinderName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-    color: '#333',
-  },
-  cylinderDetails: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  cylinderPrice: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#F50101',
-    marginBottom: 4,
-  },
-  cylinderDesc: {
-    fontSize: 12,
-    color: '#777',
-    fontStyle: 'italic',
-  },
-  addBtn: {
-    backgroundColor: '#F50101',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 6,
-    justifyContent: 'center',
-  },
-  addBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  cartItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  cartImageContainer: {
-    marginRight: 10,
-  },
-  cartImage: {
-    width: 45,
-    height: 45,
-    borderRadius: 6,
-    backgroundColor: '#f0f0f0',
-  },
-  cartInfo: {
-    flex: 1,
-  },
-  cartName: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 4,
-    color: '#333',
-  },
-  cartPrice: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
-  quantityControlsContainer: {
-    width: '100%',
-    alignItems: 'flex-start',
-  },
-  quantityControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  qtyBtn: {
-    backgroundColor: '#F50101',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  qtyBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  quantity: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginHorizontal: 15,
-    minWidth: 25,
-    textAlign: 'center',
-    color: '#333',
-  },
-  itemTotalNew: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    marginTop: 5,
-    color: '#333',
-  },
-  // Map Picker Button
-  mapPickerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 20,
-  },
-  mapPickerText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 10,
-  },
-  // Map Modal Styles
-  mapContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingBottom: 40,
-  },
-  mapHeader: {
-    backgroundColor: '#F50101',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    paddingTop: 50,
-  },
-  mapCloseBtn: {
-    padding: 5,
-  },
-  mapTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  mapLocationBtn: {
-    padding: 5,
-  },
-  map: {
-    flex: 1,
-  },
-  mapFooter: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  coordinatesText: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  confirmLocationBtn: {
-    backgroundColor: '#F50101',
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  confirmLocationText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  // Form Styles
-  inputGroup: {
-    marginBottom: 20,
-  },
-  halfInputGroup: {
-    width: '47%',
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  required: {
-    color: '#d63384',
-    fontWeight: 'bold',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#333',
-    minHeight: 45,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-    paddingTop: 12,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  summaryLabel: {
-    fontSize: 16,
-    color: '#ffff',
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#ffff',
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 2,
-    borderTopColor: '#2196f3',
-  },
-  totalLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#F50101',
-  },
-  totalValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#F50101',
-  },
-  orderBtn: {
-    backgroundColor: '#F50101',
-    margin: 15,
-    paddingVertical: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  orderBtnText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  disabledBtn: {
-    opacity: 0.6,
-  },
-  bottomSpace: {
-    height: 30, // To give some space at the bottom of the scroll view
-  },
-});
