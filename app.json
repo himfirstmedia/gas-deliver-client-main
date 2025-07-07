@@ -4,20 +4,20 @@
     "slug": "free-gas-delivery",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/adaptive-icon.png",
     "scheme": "gasdelivery",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.himfirstapps.freegasdelivery"
+      "bundleIdentifier": "com.himfirstapps.freegasdeliveryclient"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.himfirstapps.freegasdelivery",
+      "package": "com.himfirstapps.freegasdeliveryclient",
       "edgeToEdgeEnabled": false,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
@@ -36,8 +36,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/splash-icon.png"
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
@@ -49,10 +48,7 @@
     },
     "extra": {
       "router": {},
-      "eas": {
-        "projectId": "b7b9b680-4d05-4b07-92f9-785ae02bd8f5"
-      }
     },
-    "owner": "peterbx"
+
   }
 }
