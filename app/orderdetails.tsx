@@ -1,4 +1,5 @@
 // app/order-details/[id].tsx
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -14,7 +15,6 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService, Order, OrderStatus, PaymentStatus } from '../services/api';
-import { Ionicons } from '@expo/vector-icons';
 
 // const { width: screenWidth } = Dimensions.get('window');
 
@@ -542,8 +542,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F50101',
-    paddingBottom:45,
-    paddingTop:30
+    paddingBottom:20,
+    paddingTop:20
   },
   centerContainer: {
     flex: 1,

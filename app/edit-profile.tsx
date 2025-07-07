@@ -1,19 +1,19 @@
 // front/app/edit-profile.tsx
-import React, { useState, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  ActivityIndicator,
+  View,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService, User } from '../services/api';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function EditProfileScreen() {
   const { user, token, setUser: updateAuthContextUser } = useAuth();
@@ -82,12 +82,13 @@ export default function EditProfileScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
-          style={{ marginLeft: 10, marginRight: 10 }}
+          style={styles.backButton}
           onPress={() => router.back()}
         >
           <Ionicons name="arrow-back" size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
+        <View style={styles.placeholder} />
       </View>
 
       <View style={styles.formContainer}>
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     paddingTop: 50, // Adjust for status bar
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Center title
+    justifyContent: 'space-between', // Changed from 'center' to 'space-between'
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     shadowColor: '#000',
@@ -193,12 +194,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-    position: 'relative', // For absolute positioning of back button
+  },
+  backButton: {
+    padding: 5, // Add some padding for better touch target
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
+    flex: 1, // Take up remaining space
+    textAlign: 'center', // Center the text
+  },
+  placeholder: {
+    width: 38, // Same width as back button to balance the layout
   },
   formContainer: {
     padding: 20,
