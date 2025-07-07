@@ -440,14 +440,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F50101',
-    paddingTop: 30,
-    paddingBottom: 45
+    paddingTop: 23,
+    paddingBottom: 35
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 20,   
     backgroundColor: '#F8F9FA',
   },
   header: {
@@ -562,6 +562,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
+    paddingBottom: 20,
   },
   emptyListContainer: {
     flex: 1,
