@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Free Gas Delivery",
-    "slug": "gasdelivery",
-    "version": "2.0.0",
+    "name": "Free Gas Delivery"
+    "slug": "gasdeliveryclient"
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gasdelivery.app",
+      "bundleIdentifier": "com.gasdeliveryclient.app",
       "config": {
         "googleMapsApiKey": "GOOGLE_MAPS_API_KEY_PLACEHOLDER"
       }
@@ -27,7 +27,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.gasdelivery.app",
+      "package": "com.gasdeliveryclient.app",
+      "package": "com.himfirstapps.freegasdeliveryclient",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
@@ -55,6 +56,6 @@
     "experiments": {
       "typedRoutes": true
     },
-    "scheme": "gasdelivery"
+    "scheme": "gasdeliveryclient"
   }
 }
