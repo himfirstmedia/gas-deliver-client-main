@@ -13,7 +13,7 @@ on:
       branch:
         description: 'Branch to build'
         required: true
-        default: 'master'
+        default: 'main'
         type: string
 
 env:
@@ -75,11 +75,23 @@ jobs:
           rm -rf android
           rm -rf ios
 
+      - name: Configure Google Maps API Key
+        run: |
+          echo "Configuring Google Maps API key in app.json..."
+          # Replace the placeholder with the actual API key from secrets
+          sed -i 's/GOOGLE_MAPS_API_KEY_PLACEHOLDER/${{ secrets.GOOGLE_MAPS_API_KEY }}/g' app.json
+          echo "Google Maps API key configured successfully"
+
       - name: Prebuild Android for Production
         run: |
           npx expo prebuild --platform android --clean
         env:
           EXPO_NO_CACHE: 1
+
+      - name: Verify Google Maps API Key in AndroidManifest
+        run: |
+          echo "Checking AndroidManifest.xml for Google Maps API key..."
+          cat android/app/src/main/AndroidManifest.xml | grep -i "google.android.geo.API_KEY" || echo "Google Maps API key not found in manifest"
 
       - name: Cache Gradle Dependencies
         uses: actions/cache@v4
