@@ -4,7 +4,7 @@
     "slug": "gasdelivery",
     "version": "2.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -48,7 +48,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Gas Delivery to use your location to show nearby gas stations and estimate delivery times."
+          "locationAlwaysAndWhenInUsePermission": "Allow Gas Delivery to use your location to show where to deliver and estimate delivery times."
         }
       ]
     ],
